@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Mon Panier{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Current order</div>
+        <h1>Votre panier</h1>
+    </div>
+    <a href="{{ url_for('client_bp.menu') }}" class="btn btn-secondary">Retour au menu</a>
+</div>
+
+{% if cart_items %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Prix unitaire</th>
+                    <th>Quantité</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td><strong>{{ item.product.libelle }}</strong></td>
+                    <td>{{ item.product.prix_vente }} DH</td>
+                    <td>
+                        <form action="{{ url_for('client_bp.update_cart', product_id=item.product.id_produit) }}" method="POST" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                            <input type="number" name="quantity" min="1" value="{{ item.quantity }}" style="width: 96px;">
+                            <button type="submit" class="btn btn-secondary btn-sm">Mettre à jour</button>
+                        </form>
+                    </td>
+                    <td>{{ "%.2f"|format(item.total) }} DH</td>
+                    <td><a href="{{ url_for('client_bp.remove_from_cart', product_id=item.product.id_produit) }}" class="btn btn-danger btn-sm">Retirer</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: bold; font-size: 1.05rem;">
+                    <td colspan="3" style="text-align: right;">TOTAL</td>
+                    <td colspan="2">{{ "%.2f"|format(total) }} DH</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="action-row" style="margin-top: 1.5rem; justify-content: space-between;">
+        <form action="{{ url_for('client_bp.clear_cart') }}" method="POST">
+            <button type="submit" class="btn btn-danger">Vider le panier</button>
+        </form>
+        <div class="action-row" style="margin-left: auto;">
+            <a href="{{ url_for('client_bp.menu') }}" class="btn btn-secondary">Continuer mes achats</a>
+            <a href="{{ url_for('client_bp.checkout') }}" class="btn btn-primary">Passer la commande</a>
+        </div>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>Votre panier est vide</h3>
+        <p>Ajoutez quelques plats pour lancer la commande.</p>
+        <a href="{{ url_for('client_bp.menu') }}" class="btn btn-primary">Voir le menu</a>
+    </div>
+{% endif %}
+{% endblock %}

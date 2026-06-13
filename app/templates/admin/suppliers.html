@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Fournisseurs{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Partenaires</div>
+        <h1>Gestion des fournisseurs</h1>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="form-container" style="margin: 1.5rem 0 2rem; max-width: 100%;">
+    <div class="section-heading" style="margin-top: 0;">
+        <div>
+            <div class="section-kicker">Nouveau Fournisseur</div>
+            <h2>Ajouter un fournisseur</h2>
+        </div>
+    </div>
+    <form action="{{ url_for('admin.add_supplier') }}" method="POST">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem;">
+            <div class="form-group">
+                <label for="nom">Nom de l'entreprise</label>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+            <div class="form-group">
+                <label for="ville">Ville</label>
+                <input type="text" id="ville" name="ville">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="telephone">Téléphone</label>
+                <input type="text" id="telephone" name="telephone">
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse</label>
+                <input type="text" id="adresse" name="adresse">
+            </div>
+            <div class="form-group">
+                <label for="ice">ICE</label>
+                <input type="text" id="ice" name="ice">
+            </div>
+            <div class="form-group">
+                <label for="rc">RC</label>
+                <input type="text" id="rc" name="rc">
+            </div>
+            <div class="form-group">
+                <label for="if_legal">IF</label>
+                <input type="text" id="if_legal" name="if_legal">
+            </div>
+            <div class="form-group">
+                <label for="banque">Banque</label>
+                <input type="text" id="banque" name="banque">
+            </div>
+            <div class="form-group">
+                <label for="rib">RIB</label>
+                <input type="text" id="rib" name="rib">
+            </div>
+            <div class="form-group">
+                <label for="contact_nom">Personne de contact</label>
+                <input type="text" id="contact_nom" name="contact_nom">
+            </div>
+            <div class="form-group">
+                <label for="contact_fonction">Fonction</label>
+                <input type="text" id="contact_fonction" name="contact_fonction">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success" style="margin-top: 1rem;">Ajouter le fournisseur</button>
+    </form>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Contact</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Ville</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sup in suppliers %}
+            <tr>
+                <td><strong>{{ sup.nom }}</strong></td>
+                <td>{{ sup.contact_nom or 'N/A' }}</td>
+                <td>{{ sup.telephone or 'N/A' }}</td>
+                <td>{{ sup.email or 'N/A' }}</td>
+                <td>{{ sup.ville or 'N/A' }}</td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('admin.print_supplier', supplier_id=sup.id_fournisseur) }}" class="btn btn-primary btn-sm" target="_blank">Fiche</a>
+                        <a href="{{ url_for('admin.edit_supplier', supplier_id=sup.id_fournisseur) }}" class="btn btn-secondary btn-sm">Modifier</a>
+                        <form action="{{ url_for('admin.delete_supplier', supplier_id=sup.id_fournisseur) }}" method="POST" onsubmit="return confirm('Supprimer ce fournisseur ?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

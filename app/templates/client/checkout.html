@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Finaliser la Commande{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Checkout</div>
+        <h1>Finaliser votre commande</h1>
+    </div>
+    <span class="badge badge--accent">Total: {{ "%.2f"|format(total) }} DH</span>
+</div>
+
+<div class="form-container" style="max-width: 720px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+        <div>
+            <h2 style="margin-bottom: 0.35rem;">Confirmer les détails</h2>
+            <p style="margin: 0; color: var(--muted);">Choisissez le type de commande, le mode de paiement et l'adresse si nécessaire.</p>
+        </div>
+        <span class="badge">Secure checkout</span>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="type_commande">Type de commande</label>
+            <select id="type_commande" name="type_commande" required>
+                <option value="Sur place">Sur place</option>
+                <option value="À emporter">À emporter</option>
+                <option value="Livraison">Livraison</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="adresse">Adresse de livraison (requis pour la livraison)</label>
+            <textarea id="adresse" name="adresse" rows="3" placeholder="Laissez vide pour sur place ou à emporter"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="mode_paiement">Mode de paiement</label>
+            <select id="mode_paiement" name="mode_paiement" required>
+                <option value="Espèces">Espèces à la livraison</option>
+                <option value="Carte Bancaire">Carte Bancaire</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Confirmer la commande</button>
+    </form>
+</div>
+{% endblock %}

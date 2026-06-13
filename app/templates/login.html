@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+    <section class="auth-panel auth-panel--intro">
+        <div class="badge badge--accent">Welcome back</div>
+        <h1>Reconnectez-vous à ElectroVentes</h1>
+        <p>Accédez au menu, à votre panier et à l'historique de commandes depuis un espace clair, rapide et mobile-friendly.</p>
+        <div class="mini-copy">
+            <div><span></span> Suivi de commande plus lisible</div>
+            <div><span></span> Interface pensée pour les clients et l'administration</div>
+            <div><span></span> Parcours de commande plus direct</div>
+        </div>
+    </section>
+
+    <section class="auth-panel panel">
+        <div class="section-heading" style="margin-top: 0;">
+            <div>
+                <div class="section-kicker">Secure access</div>
+                <h2>Connexion</h2>
+            </div>
+        </div>
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Se connecter</button>
+        </form>
+        <p style="text-align: center; margin-top: 1rem; color: var(--muted);">
+            Pas de compte ? <a href="{{ url_for('auth.register') }}">Inscrivez-vous ici</a>
+        </p>
+    </section>
+</div>
+{% endblock %}

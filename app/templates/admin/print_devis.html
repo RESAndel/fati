@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Devis #{{ devis.id_devis }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 20px; }
+        .company-info h1 { margin: 0; color: #000; }
+        .devis-details { text-align: right; }
+        .client-info { margin-top: 30px; border: 1px solid #ddd; padding: 15px; width: 300px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .totals { margin-top: 30px; text-align: right; }
+        .footer { margin-top: 50px; font-size: 0.9em; text-align: center; border-top: 1px solid #ddd; padding-top: 20px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Imprimer</button>
+        <hr>
+    </div>
+
+    <div class="header">
+        <div class="company-info">
+            <h1>ElectroVentes</h1>
+            <p>Vente d'Appareils Électroniques<br>Ville, Maroc<br>Email: contact@electroventes.ma</p>
+        </div>
+        <div class="devis-details">
+            <h2>DEVIS</h2>
+            <p><strong>N°:</strong> {{ devis.id_devis }}</p>
+            <p><strong>Date:</strong> {{ devis.date_devis.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Validité:</strong> {{ devis.validite }} jours</p>
+        </div>
+    </div>
+
+    <div class="client-info">
+        <strong>À l'attention de:</strong><br>
+        {{ devis.client.nom }} {{ devis.client.prenom }}<br>
+        {{ devis.client.telephone }}<br>
+        {{ devis.client.email }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Article</th>
+                <th>Marque</th>
+                <th>Prix Unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in devis.lignes %}
+            <tr>
+                <td>{{ ligne.produit.libelle }}</td>
+                <td>{{ ligne.produit.marque or '' }}</td>
+                <td>{{ "%.2f"|format(ligne.prix_unitaire) }} DH</td>
+                <td>{{ ligne.quantite }}</td>
+                <td>{{ "%.2f"|format(ligne.prix_unitaire * ligne.quantite) }} DH</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <h2 style="color: #000;">Total Global: {{ "%.2f"|format(devis.montant_total) }} DH</h2>
+    </div>
+
+    <div class="footer">
+        <p>Ce devis est valable {{ devis.validite }} jours à compter de la date d'émission.</p>
+        <p>Bon pour accord (Signature et Cachet) :</p>
+        <div style="height: 100px;"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Modifier Fournisseur{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Édition</div>
+        <h1>Modifier : {{ supplier.nom }}</h1>
+    </div>
+    <a href="{{ url_for('admin.suppliers') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="form-container" style="max-width: 600px; margin: 2rem auto;">
+    <form action="{{ url_for('admin.edit_supplier', supplier_id=supplier.id_fournisseur) }}" method="POST">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem;">
+            <div class="form-group">
+                <label for="nom">Nom de l'entreprise</label>
+                <input type="text" id="nom" name="nom" value="{{ supplier.nom }}" required>
+            </div>
+            <div class="form-group">
+                <label for="ville">Ville</label>
+                <input type="text" id="ville" name="ville" value="{{ supplier.ville or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="{{ supplier.email or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="telephone">Téléphone</label>
+                <input type="text" id="telephone" name="telephone" value="{{ supplier.telephone or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse</label>
+                <input type="text" id="adresse" name="adresse" value="{{ supplier.adresse or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="ice">ICE</label>
+                <input type="text" id="ice" name="ice" value="{{ supplier.ice or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="rc">RC</label>
+                <input type="text" id="rc" name="rc" value="{{ supplier.rc or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="if_legal">IF</label>
+                <input type="text" id="if_legal" name="if_legal" value="{{ supplier.if_legal or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="banque">Banque</label>
+                <input type="text" id="banque" name="banque" value="{{ supplier.banque or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="rib">RIB</label>
+                <input type="text" id="rib" name="rib" value="{{ supplier.rib or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="contact_nom">Personne de contact</label>
+                <input type="text" id="contact_nom" name="contact_nom" value="{{ supplier.contact_nom or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="contact_fonction">Fonction</label>
+                <input type="text" id="contact_fonction" name="contact_fonction" value="{{ supplier.contact_fonction or '' }}">
+            </div>
+        </div>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success">Enregistrer les modifications</button>
+            <a href="{{ url_for('admin.suppliers') }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

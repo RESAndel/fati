@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Modifier la commande{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <div>
+        <h1>Modifier la commande #{{ order.id_commande }}</h1>
+        <p style="margin-top: 0.35rem; opacity: 0.8;">Client: {{ order.client.nom }} {{ order.client.prenom }}</p>
+    </div>
+    <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="panel" style="max-width: 760px; margin-top: 1.5rem;">
+    <form method="POST" style="display: grid; gap: 1rem;">
+        <div>
+            <label for="statut" style="display: block; margin-bottom: 0.35rem;">Statut</label>
+            <select id="statut" name="statut" style="width: 100%;">
+                {% for status in status_options %}
+                <option value="{{ status }}" {% if order.statut == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="mode_paiement" style="display: block; margin-bottom: 0.35rem;">Mode de paiement</label>
+            <input
+                type="text"
+                id="mode_paiement"
+                name="mode_paiement"
+                value="{{ order.facture.mode_paiement if order.facture else '' }}"
+                placeholder="Ex: Espèces, Carte, PayPal"
+                style="width: 100%;"
+            >
+        </div>
+
+        <div>
+            <label for="date_reglement" style="display: block; margin-bottom: 0.35rem;">Date de règlement</label>
+            <input
+                type="date"
+                id="date_reglement"
+                name="date_reglement"
+                value="{{ order.facture.date_reglement.strftime('%Y-%m-%d') if order.facture and order.facture.date_reglement else '' }}"
+                style="width: 100%;"
+            >
+        </div>
+
+        <div>
+            <label for="adresse" style="display: block; margin-bottom: 0.35rem;">Adresse de livraison</label>
+            <textarea
+                id="adresse"
+                name="adresse"
+                rows="3"
+                placeholder="Laisser vide si la commande n'a pas d'adresse de livraison"
+                style="width: 100%;"
+            >{{ order.livraison.adresse if order.livraison else '' }}</textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="{{ url_for('admin.order_detail', order_id=order.id_commande) }}" class="btn btn-secondary">Voir les détails</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

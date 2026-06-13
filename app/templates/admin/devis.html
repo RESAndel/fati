@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Devis{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Négociations</div>
+        <h1>Gestion des devis</h1>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="table-wrap" style="margin-top: 2rem;">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Client</th>
+                <th>Montant Total</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for devis in all_devis %}
+            <tr>
+                <td>#{{ devis.id_devis }}</td>
+                <td>{{ devis.date_devis.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ devis.client.nom }} {{ devis.client.prenom }}</td>
+                <td>{{ "%.2f"|format(devis.montant_total) }} DH</td>
+                <td>
+                    <span class="badge 
+                        {% if devis.statut == 'Accepté' %}badge-success
+                        {% elif devis.statut == 'Refusé' %}badge-danger
+                        {% elif devis.statut == 'Envoyé' %}badge-info
+                        {% else %}badge-secondary{% endif %}">
+                        {{ devis.statut }}
+                    </span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('admin.print_devis', devis_id=devis.id_devis) }}" class="btn btn-secondary btn-sm" target="_blank">Imprimer</a>
+                        <a href="{{ url_for('admin.devis_detail', devis_id=devis.id_devis) }}" class="btn btn-secondary btn-sm">Détails / Statut</a>
+                        <form action="{{ url_for('admin.delete_devis', devis_id=devis.id_devis) }}" method="POST" onsubmit="return confirm('Supprimer ce devis ?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Historique des Commandes{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Account activity</div>
+        <h1>Mes commandes</h1>
+    </div>
+    <a href="{{ url_for('client_bp.menu') }}" class="btn btn-secondary">Commander à nouveau</a>
+</div>
+
+{% if orders %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Statut</th>
+                    <th>Détails</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id_commande }}</td>
+                    <td>{{ order.date_commande.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ "%.2f"|format(order.facture.montant_total if order.facture else 0) }} DH</td>
+                    <td>
+                        <span class="badge {% if order.statut == 'Livrée' %}badge--success{% elif order.statut == 'Annulée' %}badge--danger{% elif order.statut == 'En préparation' or order.statut == 'Prête' or order.statut == 'En livraison' %}badge--accent{% else %}badge{% endif %}">
+                            {{ order.statut }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('client_bp.order_detail', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm">Voir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>Aucune commande pour le moment</h3>
+        <p>Vous pouvez parcourir le menu et lancer votre première commande.</p>
+        <a href="{{ url_for('client_bp.menu') }}" class="btn btn-primary">Voir le menu</a>
+    </div>
+{% endif %}
+{% endblock %}

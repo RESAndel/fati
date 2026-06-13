@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Mes Devis{% endblock %}
+
+{% block content %}
+<div class="page-wide">
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Suivi</div>
+        <h1>Mes Devis</h1>
+    </div>
+    <a href="{{ url_for('client_bp.menu') }}" class="btn btn-secondary">Retour au catalogue</a>
+</div>
+
+{% if devis_list %}
+<div class="table-wrap" style="margin-top: 2rem;">
+    <table>
+        <thead>
+            <tr>
+                <th>Numéro</th>
+                <th>Date</th>
+                <th>Montant Total</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for devis in devis_list %}
+            <tr>
+                <td><strong>#{{ devis.id_devis }}</strong></td>
+                <td>{{ devis.date_devis.strftime('%d/%m/%Y') }}</td>
+                <td>{{ "%.2f"|format(devis.montant_total) }} DH</td>
+                <td>
+                    <span class="badge 
+                        {% if devis.statut == 'Accepté' %}badge-success
+                        {% elif devis.statut == 'Refusé' %}badge-danger
+                        {% elif devis.statut == 'Envoyé' %}badge-info
+                        {% else %}badge-secondary{% endif %}">
+                        {{ devis.statut }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <h3>Vous n'avez aucun devis</h3>
+    <p>Contactez-nous pour obtenir une estimation personnalisée.</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

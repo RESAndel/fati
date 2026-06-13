@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+    <section class="auth-panel auth-panel--intro">
+        <div class="badge badge--accent">Create account</div>
+        <h1>Ouvrez votre espace client</h1>
+        <p>Créez un compte pour commander plus vite, retrouver vos achats et suivre chaque étape du service.</p>
+        <div class="mini-copy">
+            <div><span></span> Historique de commandes centralisé</div>
+            <div><span></span> Suivi des statuts plus clair</div>
+            <div><span></span> Expérience responsive pour mobile et desktop</div>
+        </div>
+    </section>
+
+    <section class="auth-panel panel">
+        <div class="section-heading" style="margin-top: 0;">
+            <div>
+                <div class="section-kicker">Join now</div>
+                <h2>Inscription</h2>
+            </div>
+        </div>
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="telephone">Téléphone</label>
+                <input type="tel" id="telephone" name="telephone">
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Créer un compte</button>
+        </form>
+        <p style="text-align: center; margin-top: 1rem; color: var(--muted);">
+            Déjà un compte ? <a href="{{ url_for('auth.login') }}">Connectez-vous ici</a>
+        </p>
+    </section>
+</div>
+{% endblock %}

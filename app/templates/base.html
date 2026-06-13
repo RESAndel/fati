@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroVentes - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <header>
+        <div class="container">
+            <nav>
+                <a href="{{ url_for('main.index') }}" class="logo">ElectroVentes</a>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('main.index') }}">Accueil</a></li>
+                    <li><a href="{{ url_for('client_bp.menu') }}">Catalogue</a></li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <li><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('client_bp.my_devis') }}">Mes Devis</a></li>
+                            <li><a href="{{ url_for('client_bp.cart') }}">Panier</a></li>
+                            <li><a href="{{ url_for('client_bp.history') }}">Mes Commandes</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('auth.logout') }}">Déconnexion ({{ current_user.prenom }})</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}">Connexion</a></li>
+                        <li><a href="{{ url_for('auth.register') }}">Inscription</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 ElectroVentes - Tous droits réservés.</p>
+        </div>
+    </footer>
+</body>
+</html>

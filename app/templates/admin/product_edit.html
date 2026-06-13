@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Modifier Produit{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Édition</div>
+        <h1>Modifier : {{ product.libelle }}</h1>
+    </div>
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="form-container" style="max-width: 800px; margin: 2rem auto;">
+    <form action="{{ url_for('admin.edit_product', product_id=product.id_produit) }}" method="POST" enctype="multipart/form-data">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem;">
+            <div class="form-group">
+                <label for="libelle">Libellé</label>
+                <input type="text" id="libelle" name="libelle" value="{{ product.libelle }}" required>
+            </div>
+            <div class="form-group">
+                <label for="reference">Référence</label>
+                <input type="text" id="reference" name="reference" value="{{ product.reference or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="marque">Marque</label>
+                <input type="text" id="marque" name="marque" value="{{ product.marque or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="couleur">Couleur</label>
+                <input type="text" id="couleur" name="couleur" value="{{ product.couleur or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="id_categorie">Catégorie</label>
+                <select id="id_categorie" name="id_categorie" required>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id_categorie }}" {% if cat.id_categorie == product.id_categorie %}selected{% endif %}>
+                        {{ cat.nom }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="id_fournisseur">Fournisseur</label>
+                <select id="id_fournisseur" name="id_fournisseur">
+                    <option value="">Aucun fournisseur</option>
+                    {% for sup in suppliers %}
+                    <option value="{{ sup.id_fournisseur }}" {% if sup.id_fournisseur == product.id_fournisseur %}selected{% endif %}>
+                        {{ sup.nom }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="stock">Stock</label>
+                <input type="number" id="stock" name="stock" value="{{ product.stock }}" required>
+            </div>
+            <div class="form-group">
+                <label for="prix_achat">Prix d'Achat (DH)</label>
+                <input type="number" step="0.01" id="prix_achat" name="prix_achat" value="{{ product.prix_achat }}" required>
+            </div>
+            <div class="form-group">
+                <label for="prix_vente">Prix de Vente (DH)</label>
+                <input type="number" step="0.01" id="prix_vente" name="prix_vente" value="{{ product.prix_vente }}" required>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="image">Image (laisser vide pour conserver l'actuelle)</label>
+                <input type="file" id="image" name="image">
+                {% if product.image %}
+                <div style="margin-top: 0.5rem;">
+                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" width="100" style="border-radius: 8px;">
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4">{{ product.description }}</textarea>
+            </div>
+        </div>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success">Enregistrer les modifications</button>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

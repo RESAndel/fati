@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Commandes{% endblock %}
+
+{% block content %}
+<div class="no-print" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <h1>Gestion des Commandes</h1>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button type="button" class="btn btn-primary" onclick="window.print()">Imprimer la liste</button>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Retour</a>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Total</th>
+            <th>Statut</th>
+            <th class="no-print">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>#{{ order.id_commande }}</td>
+            <td>{{ order.date_commande.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ order.client.nom }} {{ order.client.prenom }}</td>
+            <td>{{ "%.2f"|format(order.facture.montant_total if order.facture else 0) }} DH</td>
+            <td>
+                <form action="{{ url_for('admin.update_order_status', order_id=order.id_commande) }}" method="POST" style="display: flex; gap: 0.5rem;">
+                    <select name="statut">
+                        {% for status in status_options %}
+                        <option value="{{ status }}" {% if order.statut == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
+                </form>
+            </td>
+            <td class="no-print">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="{{ url_for('admin.print_invoice', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm" target="_blank">Imprimer Facture</a>
+                    <a href="{{ url_for('admin.order_detail', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm">Détails</a>
+                    <a href="{{ url_for('admin.edit_order', order_id=order.id_commande) }}" class="btn btn-primary btn-sm">Modifier</a>
+                    <form action="{{ url_for('admin.delete_order', order_id=order.id_commande) }}" method="POST" onsubmit="return confirm('Supprimer cette commande ?');" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

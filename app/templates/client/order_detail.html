@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Détails de la Commande{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Order summary</div>
+        <h1>Commande #{{ order.id_commande }}</h1>
+        <p style="margin: 0; color: var(--muted);">Passée le {{ order.date_commande.strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+    <a href="{{ back_url if back_url is defined else url_for('client_bp.history') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Statut</h3>
+        <div class="stat-value" style="font-size: 1.2rem;">{{ order.statut }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Total</h3>
+        <div class="stat-value">{{ "%.2f"|format(order.facture.montant_total if order.facture else 0) }} DH</div>
+    </div>
+    <div class="stat-card">
+        <h3>Paiement</h3>
+        <div class="stat-value" style="font-size: 1.2rem;">{{ order.facture.mode_paiement if order.facture else 'N/A' }}</div>
+    </div>
+</div>
+
+{% if order.livraison %}
+<div class="panel" style="margin: 1.5rem 0;">
+    <div class="section-heading" style="margin-top: 0;">
+        <div>
+            <div class="section-kicker">Delivery</div>
+            <h2>Informations de livraison</h2>
+        </div>
+        <span class="badge badge--accent">{{ order.livraison.etat_livraison }}</span>
+    </div>
+    <p><strong>Adresse :</strong> {{ order.livraison.adresse }}</p>
+    <p><strong>État :</strong> {{ order.livraison.etat_livraison }}</p>
+</div>
+{% endif %}
+
+<div class="section-heading" style="margin-top: 1.75rem;">
+    <div>
+        <div class="section-kicker">Line items</div>
+        <h2>Détail des articles</h2>
+    </div>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for line in order.lignes %}
+            <tr>
+                <td><strong>{{ line.produit.libelle }}</strong></td>
+                <td>{{ line.quantite }}</td>
+                <td>{{ "%.2f"|format(line.prix_unitaire) }} DH</td>
+                <td>{{ "%.2f"|format(line.prix_unitaire * line.quantite) }} DH</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Catégories{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Catalog control</div>
+        <h1>Gestion des catégories</h1>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div class="form-container" style="margin: 1.5rem 0 2rem; max-width: 100%;">
+    <div class="section-heading" style="margin-top: 0;">
+        <div>
+            <div class="section-kicker">Structure</div>
+            <h2>Ajouter une catégorie</h2>
+        </div>
+    </div>
+    <form action="{{ url_for('admin.add_category') }}" method="POST" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+        <div class="form-group" style="flex: 1; min-width: 240px; margin-bottom: 0;">
+            <label for="nom">Nom de la catégorie</label>
+            <input type="text" id="nom" name="nom" required>
+        </div>
+        <button type="submit" class="btn btn-success">Ajouter</button>
+    </form>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Nombre de produits</th>
+                <th class="no-print">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <td>{{ cat.id_categorie }}</td>
+                <td>{{ cat.nom }}</td>
+                <td><span class="badge">{{ cat.produits|length }}</span></td>
+                <td class="no-print">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{{ url_for('admin.edit_category', category_id=cat.id_categorie) }}" class="btn btn-primary btn-sm">Modifier</a>
+                        <form action="{{ url_for('admin.delete_category', category_id=cat.id_categorie) }}" method="POST" onsubmit="return confirm('Supprimer cette catégorie ?');" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

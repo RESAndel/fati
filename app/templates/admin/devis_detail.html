@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Détails du Devis{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <div class="section-kicker">Détails</div>
+        <h1>Devis #{{ devis.id_devis }}</h1>
+    </div>
+    <a href="{{ url_for('admin.list_devis') }}" class="btn btn-secondary">Retour</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem; margin-top: 2rem;">
+    <div>
+        <div class="panel">
+            <h3>Articles du devis</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Prix Unitaire</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in devis.lignes %}
+                        <tr>
+                            <td>{{ ligne.produit.libelle }}</td>
+                            <td>{{ ligne.quantite }}</td>
+                            <td>{{ "%.2f"|format(ligne.prix_unitaire) }} DH</td>
+                            <td>{{ "%.2f"|format(ligne.prix_unitaire * ligne.quantite) }} DH</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" style="text-align: right;">Total</th>
+                            <th>{{ "%.2f"|format(devis.montant_total) }} DH</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div>
+        <div class="panel">
+            <h3>Informations</h3>
+            <p><strong>Client:</strong> {{ devis.client.nom }} {{ devis.client.prenom }}</p>
+            <p><strong>Date:</strong> {{ devis.date_devis.strftime('%d/%m/%Y') }}</p>
+            <hr>
+            <form action="{{ url_for('admin.update_devis_status', devis_id=devis.id_devis) }}" method="POST">
+                <div class="form-group">
+                    <label for="validite">Validité (jours)</label>
+                    <input type="number" name="validite" id="validite" value="{{ devis.validite }}">
+                </div>
+                <div class="form-group">
+                    <label for="statut">Mettre à jour le statut</label>
+                    <select name="statut" id="statut">
+                        <option value="Brouillon" {% if devis.statut == 'Brouillon' %}selected{% endif %}>Brouillon</option>
+                        <option value="Envoyé" {% if devis.statut == 'Envoyé' %}selected{% endif %}>Envoyé</option>
+                        <option value="Accepté" {% if devis.statut == 'Accepté' %}selected{% endif %}>Accepté</option>
+                        <option value="Refusé" {% if devis.statut == 'Refusé' %}selected{% endif %}>Refusé</option>
+                        <option value="Converti en Commande" {% if devis.statut == 'Converti en Commande' %}selected{% endif %}>Converti en Commande</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">Mettre à jour</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

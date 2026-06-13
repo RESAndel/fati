@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Fiche Fournisseur - {{ supplier.nom }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
+        .header { border-bottom: 2px solid #333; margin-bottom: 30px; text-align: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; background: #fefefe; }
+        .section h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #000; }
+        .field { margin-bottom: 8px; }
+        .field label { font-weight: bold; color: #666; width: 140px; display: inline-block; }
+        .signature-box { margin-top: 50px; border-top: 2px solid #333; padding-top: 10px; display: flex; justify-content: space-between; }
+        .signature-area { width: 250px; height: 100px; border: 1px dashed #ccc; margin-top: 10px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Imprimer</button>
+        <hr>
+    </div>
+
+    <div class="header">
+        <h1>FICHE FOURNISSEUR</h1>
+        <p>ElectroVentes - Réseau Partenaires</p>
+    </div>
+
+    <div class="grid">
+        <div class="section">
+            <h3>Informations Générales</h3>
+            <div class="field"><label>N° Fournisseur:</label> {{ supplier.id_fournisseur }}</div>
+            <div class="field"><label>Nom / Raison:</label> {{ supplier.nom }}</div>
+            <div class="field"><label>Adresse:</label> {{ supplier.adresse }}</div>
+            <div class="field"><label>Ville:</label> {{ supplier.ville or 'N/A' }}</div>
+            <div class="field"><label>Téléphone:</label> {{ supplier.telephone }}</div>
+            <div class="field"><label>Email:</label> {{ supplier.email }}</div>
+        </div>
+
+        <div class="section">
+            <h3>Détails Légaux</h3>
+            <div class="field"><label>ICE:</label> {{ supplier.ice or 'N/A' }}</div>
+            <div class="field"><label>RC:</label> {{ supplier.rc or 'N/A' }}</div>
+            <div class="field"><label>IF:</label> {{ supplier.if_legal or 'N/A' }}</div>
+        </div>
+
+        <div class="section">
+            <h3>Informations Bancaires</h3>
+            <div class="field"><label>Banque:</label> {{ supplier.banque or 'N/A' }}</div>
+            <div class="field"><label>RIB:</label> {{ supplier.rib or 'N/A' }}</div>
+        </div>
+
+        <div class="section">
+            <h3>Contact Direct</h3>
+            <div class="field"><label>Nom:</label> {{ supplier.contact_nom or 'N/A' }}</div>
+            <div class="field"><label>Fonction:</label> {{ supplier.contact_fonction or 'N/A' }}</div>
+        </div>
+    </div>
+
+    <div class="signature-box">
+        <div>
+            <strong>Visa Administration</strong>
+            <div class="signature-area"></div>
+        </div>
+        <div>
+            <strong>Cachet & Signature Fournisseur</strong>
+            <div class="signature-area"></div>
+        </div>
+    </div>
+
+    <div style="margin-top: 50px; font-size: 0.8em; color: #888;">
+        Document confidentiel à usage interne - ElectroVentes &copy; 2026
+    </div>
+</body>
+</html>

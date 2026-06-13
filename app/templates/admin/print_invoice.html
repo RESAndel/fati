@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ order.facture.id_facture if order.facture else order.id_commande }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 20px; }
+        .company-info h1 { margin: 0; color: #000; }
+        .invoice-details { text-align: right; }
+        .client-info { margin-top: 30px; border: 1px solid #ddd; padding: 15px; width: 300px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .totals { margin-top: 30px; text-align: right; }
+        .footer { margin-top: 50px; font-size: 0.9em; text-align: center; border-top: 1px solid #ddd; padding-top: 20px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Imprimer</button>
+        <hr>
+    </div>
+
+    <div class="header">
+        <div class="company-info">
+            <h1>ElectroVentes</h1>
+            <p>Vente d'Appareils Électroniques<br>Ville, Maroc</p>
+        </div>
+        <div class="invoice-details">
+            <h2>FACTURE</h2>
+            <p><strong>N°:</strong> {{ order.facture.id_facture if order.facture else order.id_commande }}</p>
+            <p><strong>Date:</strong> {{ order.date_commande.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Règlement:</strong> {{ order.facture.date_reglement.strftime('%d/%m/%Y') if order.facture and order.facture.date_reglement else 'Non spécifié' }}</p>
+        </div>
+    </div>
+
+    <div class="client-info">
+        <strong>Facturé à:</strong><br>
+        {{ order.client.nom }} {{ order.client.prenom }}<br>
+        {{ order.client.telephone }}<br>
+        {{ order.client.email }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Article</th>
+                <th>Marque</th>
+                <th>Prix Unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in order.lignes %}
+            <tr>
+                <td>{{ ligne.produit.libelle }}</td>
+                <td>{{ ligne.produit.marque or '' }}</td>
+                <td>{{ "%.2f"|format(ligne.prix_unitaire) }} DH</td>
+                <td>{{ ligne.quantite }}</td>
+                <td>{{ "%.2f"|format(ligne.prix_unitaire * ligne.quantite) }} DH</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <h3>Total HT: {{ "%.2f"|format((order.facture.montant_total or 0) / 1.2) if order.facture else '0.00' }} DH</h3>
+        <h3>TVA (20%): {{ "%.2f"|format((order.facture.montant_total or 0) * 0.2 / 1.2) if order.facture else '0.00' }} DH</h3>
+        <h2 style="color: #000;">Total TTC: {{ "%.2f"|format(order.facture.montant_total or 0) if order.facture else '0.00' }} DH</h2>
+    </div>
+
+    <div class="footer">
+        <p>Merci de votre confiance !</p>
+        <p>ElectroVentes - ICE: 000000000000 - RC: 12345</p>
+    </div>
+</body>
+</html>

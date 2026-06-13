@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Produits</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+        h1 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
+        th { background-color: #f2f2f2; }
+        .footer { margin-top: 30px; font-size: 0.8em; text-align: right; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Imprimer</button>
+        <hr>
+    </div>
+
+    <h1>Inventaire des Produits - ElectroVentes</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom du produit</th>
+                <th>Référence</th>
+                <th>Marque</th>
+                <th>Couleur</th>
+                <th>Fournisseur</th>
+                <th>Stock</th>
+                <th>Prix Vente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prod in products %}
+            <tr>
+                <td>{{ prod.libelle }}</td>
+                <td>{{ prod.reference or 'N/A' }}</td>
+                <td>{{ prod.marque or 'N/A' }}</td>
+                <td>{{ prod.couleur or 'N/A' }}</td>
+                <td>{{ prod.fournisseur.nom if prod.fournisseur else 'N/A' }}</td>
+                <td>{{ prod.stock }}</td>
+                <td>{{ "%.2f"|format(prod.prix_vente) }} DH</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Généré le {{ now.strftime('%d/%m/%Y %H:%M') }}
+    </div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Accueil - Vente d'Appareils Électroniques{% endblock %}
+
+{% block content %}
+<div class="page-wide">
+<section class="hero">
+    <div class="badge badge--accent" style="margin-bottom: 1rem;">Vente Électronique</div>
+    <h1>Qualité, performance et innovation.</h1>
+    <p>Une vitrine moderne pour vos appareils électroniques, pensée pour guider le client du catalogue jusqu'au suivi de commande sans friction.</p>
+    <div class="hero-actions">
+        <a href="{{ url_for('client_bp.menu') }}" class="btn btn-primary">Voir le catalogue</a>
+        {% if not current_user.is_authenticated or not current_user.is_admin %}
+        <a href="{{ url_for('client_bp.cart') }}" class="btn btn-secondary">Ouvrir le panier</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="section-heading">
+        <div>
+            <div class="section-kicker">Navigation rapide</div>
+            <h2>Nos catégories</h2>
+        </div>
+    </div>
+
+    <div class="product-grid">
+        {% for cat in categories %}
+        <a href="{{ url_for('client_bp.menu', category_id=cat.id_categorie) }}" style="text-decoration: none; color: inherit;">
+            <div class="stat-card">
+                <h3>{{ cat.nom }}</h3>
+                <div class="stat-value" style="font-size: 1.15rem;">Explorer</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="page-section" style="margin-top: 2rem;">
+    <div class="section-heading">
+        <div>
+            <div class="section-kicker">À la une</div>
+            <h2>Produits vedettes</h2>
+        </div>
+    </div>
+
+    <div class="product-grid">
+        {% for prod in featured_products %}
+        <div class="product-card">
+            {% if prod.image %}
+                <img src="{{ url_for('static', filename='uploads/' + prod.image) }}" alt="{{ prod.libelle }}" class="product-image">
+            {% else %}
+                <div class="product-image" style="background: linear-gradient(135deg, #d9d2c7, #f4ece2); display: flex; align-items: center; justify-content: center; color: var(--muted);">Pas d'image</div>
+            {% endif %}
+            <div class="product-info">
+                <h3>{{ prod.libelle }}</h3>
+                <p>{{ (prod.description or '')[:60] }}{% if prod.description and prod.description|length > 60 %}...{% endif %}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                    <div>
+                        <span class="product-price">{{ prod.prix_vente }} DH</span><br>
+                        <small style="color: var(--muted);">Stock: {{ prod.stock }}</small>
+                    </div>
+                    <form action="{{ url_for('client_bp.add_to_cart', product_id=prod.id_produit) }}" method="POST">
+                        <button type="submit" class="btn btn-success" {% if prod.stock <= 0 %}disabled title="En rupture de stock"{% endif %}>
+                            {% if prod.stock > 0 %}Acheter{% else %}Rupture{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+</div>
+{% endblock %}

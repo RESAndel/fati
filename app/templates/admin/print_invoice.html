@@ -43,6 +43,14 @@
         {{ order.client.email }}
     </div>
 
+    {% if order.livraison %}
+    <div class="client-info" style="margin-top: 20px;">
+        <strong>Livraison:</strong><br>
+        {{ order.livraison.adresse }}<br>
+        <strong>Ã‰tat:</strong> {{ order.livraison.etat_livraison }}
+    </div>
+    {% endif %}
+
     <table>
         <thead>
             <tr>

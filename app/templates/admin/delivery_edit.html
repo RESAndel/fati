@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Modifier la livraison{% endblock %}
+
+{% block content %}
+<div class="page-wide">
+    <div class="section-heading">
+        <div>
+            <div class="section-kicker">Livraison</div>
+            <h1>Modifier la livraison #{{ delivery.id_livraison }}</h1>
+            <p style="margin: 0; color: var(--muted);">Commande #{{ delivery.commande.id_commande }} - {{ delivery.commande.client.nom }} {{ delivery.commande.client.prenom }}</p>
+        </div>
+        <div class="toolbar">
+            <a href="{{ url_for('admin.deliveries') }}" class="btn btn-secondary">Retour</a>
+            <a href="{{ url_for('admin.print_delivery', delivery_id=delivery.id_livraison) }}" class="btn btn-secondary" target="_blank">Imprimer</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Commande</h3>
+            <div class="stat-value" style="font-size: 1.35rem;">#{{ delivery.commande.id_commande }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Client</h3>
+            <div class="stat-value" style="font-size: 1.1rem;">{{ delivery.commande.client.nom }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>État</h3>
+            <div class="stat-value" style="font-size: 1.1rem;">{{ delivery.etat_livraison }}</div>
+        </div>
+    </div>
+
+    <div class="panel" style="max-width: 760px; margin-top: 1rem;">
+        <form method="POST" style="display: grid; gap: 1rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.35rem;">Commande liée</label>
+                <input type="text" value="#{{ delivery.commande.id_commande }} - {{ delivery.commande.client.nom }} {{ delivery.commande.client.prenom }}" disabled style="width: 100%;">
+            </div>
+
+            <div>
+                <label for="etat_livraison" style="display: block; margin-bottom: 0.35rem;">État de livraison</label>
+                <select id="etat_livraison" name="etat_livraison" style="width: 100%;">
+                    {% for status in status_options %}
+                    <option value="{{ status }}" {% if delivery.etat_livraison == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="adresse" style="display: block; margin-bottom: 0.35rem;">Adresse</label>
+                <textarea id="adresse" name="adresse" rows="4" style="width: 100%;" required>{{ delivery.adresse }}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{{ url_for('admin.deliveries') }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

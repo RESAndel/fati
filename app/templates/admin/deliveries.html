@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Livraisons{% endblock %}
+
+{% block content %}
+<div class="page-wide">
+    <div class="section-heading">
+        <div>
+            <div class="section-kicker">Logistique</div>
+            <h1>Gestion des livraisons</h1>
+        </div>
+        <div class="toolbar">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Retour</a>
+            <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary">Voir les commandes</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total</h3>
+            <div class="stat-value">{{ delivery_stats.total }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>En préparation</h3>
+            <div class="stat-value">{{ delivery_stats['En préparation'] }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>En cours</h3>
+            <div class="stat-value">{{ delivery_stats['En cours de livraison'] }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Livrées</h3>
+            <div class="stat-value">{{ delivery_stats['Livrée'] }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Annulées</h3>
+            <div class="stat-value">{{ delivery_stats['Annulée'] }}</div>
+        </div>
+    </div>
+
+    <div class="panel" style="margin-top: 1rem;">
+        <div class="section-heading" style="margin-top: 0;">
+            <div>
+                <div class="section-kicker">Nouvelle livraison</div>
+                <h2>Ajouter une livraison</h2>
+            </div>
+        </div>
+
+        {% if available_orders %}
+        <form action="{{ url_for('admin.add_delivery') }}" method="POST">
+            <div class="grid-two">
+                <div class="form-group">
+                    <label for="order_id">Commande</label>
+                    <select id="order_id" name="order_id" required>
+                        <option value="" disabled selected>Choisir une commande</option>
+                        {% for order in available_orders %}
+                        <option value="{{ order.id_commande }}">
+                            #{{ order.id_commande }} - {{ order.client.nom }} {{ order.client.prenom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="etat_livraison">État</label>
+                    <select id="etat_livraison" name="etat_livraison">
+                        {% for status in status_options %}
+                        <option value="{{ status }}" {% if loop.first %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="adresse">Adresse de livraison</label>
+                <textarea id="adresse" name="adresse" rows="3" placeholder="Adresse complète de livraison" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Ajouter la livraison</button>
+        </form>
+        {% else %}
+        <div class="empty-state">
+            <h3>Aucune commande disponible</h3>
+            <p>Toutes les commandes disposent déjà d'une livraison ou il n'y a pas encore de commande validée.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="toolbar" style="margin-top: 1rem; margin-bottom: 0.8rem;">
+        <label class="search-chrome" style="min-width: min(440px, 100%);" for="deliveriesSearch">
+            <span class="search-chrome__shortcut">Filter</span>
+            <input id="deliveriesSearch" type="search" placeholder="Search delivery, order, client, address..." data-live-filter="#deliveriesTableBody">
+        </label>
+        <span class="badge">{{ deliveries|length }} livraisons</span>
+    </div>
+
+    <div class="table-wrap" style="margin-top: 1.5rem;">
+        <table id="deliveriesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Commande</th>
+                    <th>Client</th>
+                    <th>Adresse</th>
+                    <th>État</th>
+                    <th>Total facture</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="deliveriesTableBody">
+                {% for delivery in deliveries %}
+                <tr data-filter-item data-filter-text="{{ delivery.id_livraison }} {{ delivery.commande.id_commande }} {{ delivery.commande.client.nom }} {{ delivery.commande.client.prenom }} {{ delivery.adresse }} {{ delivery.etat_livraison }}">
+                    <td>#{{ delivery.id_livraison }}</td>
+                    <td>#{{ delivery.commande.id_commande }}</td>
+                    <td>{{ delivery.commande.client.nom }} {{ delivery.commande.client.prenom }}</td>
+                    <td>{{ delivery.adresse }}</td>
+                    <td>
+                        <span class="badge {% if delivery.etat_livraison == 'Livrée' %}badge--success{% elif delivery.etat_livraison == 'Annulée' %}badge--danger{% else %}badge--accent{% endif %}">
+                            {{ delivery.etat_livraison }}
+                        </span>
+                    </td>
+                    <td>{{ "%.2f"|format(delivery.commande.facture.montant_total if delivery.commande.facture else 0) }} DH</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <a href="{{ url_for('admin.print_delivery', delivery_id=delivery.id_livraison) }}" class="btn btn-secondary btn-sm" target="_blank">Imprimer</a>
+                            <a href="{{ url_for('admin.edit_delivery', delivery_id=delivery.id_livraison) }}" class="btn btn-primary btn-sm">Modifier</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

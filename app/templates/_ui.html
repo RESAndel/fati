@@ -1,0 +1,30 @@
+{% macro nav_link(endpoint, label, icon='•', exact=true) -%}
+    {% set active = request.endpoint == endpoint if exact else request.endpoint.startswith(endpoint) %}
+    <a href="{{ url_for(endpoint) }}" class="nav-link {% if active %}is-active{% endif %}" data-command-label="{{ label }}" data-command-url="{{ url_for(endpoint) }}">
+        <span class="nav-link__icon">{{ icon }}</span>
+        <span class="nav-link__text">{{ label }}</span>
+    </a>
+{%- endmacro %}
+
+{% macro kpi_card(title, value, subtitle='', tone='neutral') -%}
+    <article class="kpi-card kpi-card--{{ tone }}">
+        <div class="kpi-card__label">{{ title }}</div>
+        <div class="kpi-card__value">{{ value }}</div>
+        {% if subtitle %}<div class="kpi-card__meta">{{ subtitle }}</div>{% endif %}
+    </article>
+{%- endmacro %}
+
+{% macro status_chip(label, tone='neutral') -%}
+    <span class="status-chip status-chip--{{ tone }}">{{ label }}</span>
+{%- endmacro %}
+
+{% macro empty_state(title, copy, action_label='', action_url='') -%}
+    <div class="empty-state empty-state--illustrated">
+        <div class="empty-state__orb"></div>
+        <h3>{{ title }}</h3>
+        <p>{{ copy }}</p>
+        {% if action_label and action_url %}
+        <a href="{{ action_url }}" class="btn btn-primary">{{ action_label }}</a>
+        {% endif %}
+    </div>
+{%- endmacro %}

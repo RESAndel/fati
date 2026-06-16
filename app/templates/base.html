@@ -1,53 +1,192 @@
+{% import "_ui.html" as ui %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>ElectroVentes - {% block title %}{% endblock %}</title>
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('ev-theme');
+                var theme = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    <header>
-        <div class="container">
-            <nav>
-                <a href="{{ url_for('main.index') }}" class="logo">ElectroVentes</a>
-                <ul class="nav-links">
-                    <li><a href="{{ url_for('main.index') }}">Accueil</a></li>
-                    <li><a href="{{ url_for('client_bp.menu') }}">Catalogue</a></li>
-                    {% if current_user.is_authenticated %}
-                        {% if current_user.is_admin %}
-                            <li><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
-                        {% else %}
-                            <li><a href="{{ url_for('client_bp.my_devis') }}">Mes Devis</a></li>
-                            <li><a href="{{ url_for('client_bp.cart') }}">Panier</a></li>
-                            <li><a href="{{ url_for('client_bp.history') }}">Mes Commandes</a></li>
-                        {% endif %}
-                        <li><a href="{{ url_for('auth.logout') }}">Déconnexion ({{ current_user.prenom }})</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('auth.login') }}">Connexion</a></li>
-                        <li><a href="{{ url_for('auth.register') }}">Inscription</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <div class="app-layout {% if not current_user.is_authenticated %}app-layout--guest{% endif %}">
+        {% if current_user.is_authenticated %}
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <a href="{{ url_for('main.index') }}" class="brand-mark" data-command-label="Home" data-command-url="{{ url_for('main.index') }}">
+                    <span class="brand-mark__dot"></span>
+                    <span class="brand-mark__text">ElectroVentes</span>
+                </a>
+                <p class="sidebar-brand__copy">Premium commerce operations workspace</p>
+            </div>
 
-    <main class="container">
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
+            <div class="sidebar-section">
+                <div class="sidebar-section__title">Navigation</div>
+                <nav class="sidebar-nav" aria-label="Main navigation">
+                    {% for section in ui_nav_sections %}
+                    <div class="sidebar-nav__group">
+                        <div class="sidebar-nav__group-title">{{ section.title }}</div>
+                        {% for link in section.links %}
+                            {{ ui.nav_link(link.endpoint, link.label, link.icon) }}
+                        {% endfor %}
+                    </div>
                     {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-        {% block content %}{% endblock %}
-    </main>
+                </nav>
+            </div>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 ElectroVentes - Tous droits réservés.</p>
+            <div class="sidebar-section">
+                <div class="sidebar-section__title">Quick actions</div>
+                <div class="quick-actions">
+                    {% for action in ui_quick_actions %}
+                    <a class="quick-action" href="{{ url_for(action.endpoint) }}" data-command-label="{{ action.label }}" data-command-url="{{ url_for(action.endpoint) }}">
+                        <span>{{ action.label }}</span>
+                        <kbd>{{ action.shortcut }}</kbd>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-footer__card">
+                    <div class="sidebar-footer__label">Signed in as</div>
+                    <div class="sidebar-footer__value">{{ current_user.prenom }} {{ current_user.nom }}</div>
+                    <div class="sidebar-footer__meta">{% if current_user.is_admin %}Administrator{% else %}Client account{% endif %}</div>
+                </div>
+            </div>
+        </aside>
+        {% endif %}
+
+        <div class="app-frame">
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    {% if current_user.is_authenticated %}
+                    <button class="icon-btn" type="button" data-action="sidebar-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    {% endif %}
+                    <div class="topbar-copy">
+                        <div class="topbar-copy__eyebrow">{% if current_user.is_authenticated and current_user.is_admin %}Administration{% elif current_user.is_authenticated %}Client workspace{% else %}ElectroVentes{% endif %}</div>
+                        <nav class="breadcrumbs" aria-label="Breadcrumb">
+                            {% if ui_breadcrumbs %}
+                                {% for label, href in ui_breadcrumbs %}
+                                    {% if href %}
+                                        <a href="{{ href }}">{{ label }}</a>
+                                    {% else %}
+                                        <span>{{ label }}</span>
+                                    {% endif %}
+                                    {% if not loop.last %}<span class="breadcrumbs__sep">/</span>{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span>ElectroVentes</span>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <label class="search-chrome" for="commandSearch">
+                        <span class="search-chrome__shortcut">Ctrl K</span>
+                        <input id="commandSearch" type="search" placeholder="Search pages, actions, shortcuts" data-command-trigger autocomplete="off">
+                    </label>
+
+                    <button class="icon-btn icon-btn--ghost" type="button" data-action="theme-toggle" aria-label="Toggle theme">
+                        <span class="icon-btn__sun">☼</span>
+                        <span class="icon-btn__moon">☾</span>
+                    </button>
+
+                    {% if current_user.is_authenticated %}
+                    <div class="profile-menu">
+                        <button class="profile-trigger" type="button" data-action="profile-toggle" aria-expanded="false">
+                            <span class="profile-avatar">{{ current_user.prenom[:1] }}</span>
+                            <span class="profile-copy">
+                                <strong>{{ current_user.prenom }}</strong>
+                                <small>{% if current_user.is_admin %}Administrator{% else %}Client{% endif %}</small>
+                            </span>
+                        </button>
+                        <div class="profile-menu__panel" hidden>
+                            <a href="{{ url_for('main.index') }}">Home</a>
+                            {% if current_user.is_admin %}
+                                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                                <a href="{{ url_for('admin.products') }}">Products</a>
+                            {% else %}
+                                <a href="{{ url_for('client_bp.menu') }}">Catalogue</a>
+                                <a href="{{ url_for('client_bp.history') }}">Orders</a>
+                            {% endif %}
+                            <a href="{{ url_for('auth.logout') }}">Sign out</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="guest-actions">
+                        <a class="btn btn-secondary btn-sm" href="{{ url_for('auth.login') }}">Login</a>
+                        <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}">Create account</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </header>
+
+            <main class="app-content">
+                <div class="flash-messages">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}" role="status">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <div class="command-palette" data-command-palette hidden>
+        <button class="command-palette__backdrop" type="button" data-action="close-command" aria-label="Close command palette"></button>
+        <section class="command-panel" role="dialog" aria-modal="true" aria-label="Command palette">
+            <div class="command-panel__header">
+                <div>
+                    <div class="section-kicker">Command palette</div>
+                    <h2>Jump to anywhere</h2>
+                </div>
+                <kbd>Esc</kbd>
+            </div>
+            <input class="command-panel__input" type="search" placeholder="Search pages or quick actions..." data-command-input autocomplete="off">
+            <div class="command-list" data-command-list>
+                {% for section in ui_nav_sections %}
+                    {% for link in section.links %}
+                    <button type="button" class="command-item" data-command-item data-command-label="{{ link.label }}" data-command-url="{{ url_for(link.endpoint) }}">
+                        <span>{{ link.label }}</span>
+                        <small>{{ section.title }}</small>
+                    </button>
+                    {% endfor %}
+                {% endfor %}
+                {% for action in ui_quick_actions %}
+                <button type="button" class="command-item" data-command-item data-command-label="{{ action.label }}" data-command-url="{{ url_for(action.endpoint) }}">
+                    <span>{{ action.label }}</span>
+                    <small>{{ action.shortcut }}</small>
+                </button>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <footer class="app-footer">
+        <div class="app-footer__inner">
+            <span>&copy; 2026 ElectroVentes</span>
+            <span>Enterprise commerce operations</span>
         </div>
     </footer>
 </body>

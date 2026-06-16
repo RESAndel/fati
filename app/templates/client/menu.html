@@ -3,76 +3,79 @@
 
 {% block content %}
 <div class="page-wide">
-<div class="section-heading" style="margin-bottom: 1.25rem;">
-    <div>
+    <section class="hero" style="padding: 1.5rem 1.75rem; margin-bottom: 1rem;">
         <div class="section-kicker">Catalogue</div>
         <h1>{% if selected_cat %}{{ selected_cat.nom }}{% else %}Nos produits{% endif %}</h1>
-    </div>
-    <div class="toolbar">
-        <span class="badge">{{ products|length }} articles</span>
-        {% if not current_user.is_authenticated or not current_user.is_admin %}
-        <a href="{{ url_for('client_bp.cart') }}" class="btn btn-secondary">Voir le panier</a>
-        {% endif %}
-    </div>
-</div>
+        <p>Browse the live catalogue, filter by category, and add items to the cart without losing the premium storefront feel.</p>
+        <div class="hero-actions">
+            <label class="search-chrome" style="min-width: min(560px, 100%);" for="catalogSearch">
+                <span class="search-chrome__shortcut">Filter</span>
+                <input id="catalogSearch" type="search" placeholder="Search products, brands, references..." data-live-filter=".catalog-grid">
+            </label>
+            <span class="badge">{{ products|length }} articles</span>
+            {% if not current_user.is_authenticated or not current_user.is_admin %}
+            <a href="{{ url_for('client_bp.cart') }}" class="btn btn-secondary">Voir le panier</a>
+            {% endif %}
+        </div>
+    </section>
 
-<div class="sidebar-layout">
-    <aside class="panel sidebar">
-        <h3 style="margin-bottom: 1rem;">Catégories</h3>
-        <ul class="filter-list">
-            <li>
-                <a class="{% if not selected_cat %}is-active{% endif %}" href="{{ url_for('client_bp.menu') }}">
-                    <span>Tous les produits</span>
-                    <span class="badge">All</span>
-                </a>
-            </li>
-            {% for cat in categories %}
-            <li>
-                <a class="{% if selected_cat and selected_cat.id_categorie == cat.id_categorie %}is-active{% endif %}" href="{{ url_for('client_bp.menu', category_id=cat.id_categorie) }}">
-                    <span>{{ cat.nom }}</span>
-                    <span class="badge">{{ cat.produits|length }}</span>
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    </aside>
+    <div class="sidebar-layout">
+        <aside class="panel sidebar">
+            <h3 style="margin-bottom: 1rem;">CatÃ©gories</h3>
+            <ul class="filter-list">
+                <li>
+                    <a class="{% if not selected_cat %}is-active{% endif %}" href="{{ url_for('client_bp.menu') }}">
+                        <span>Tous les produits</span>
+                        <span class="badge">All</span>
+                    </a>
+                </li>
+                {% for cat in categories %}
+                <li>
+                    <a class="{% if selected_cat and selected_cat.id_categorie == cat.id_categorie %}is-active{% endif %}" href="{{ url_for('client_bp.menu', category_id=cat.id_categorie) }}">
+                        <span>{{ cat.nom }}</span>
+                        <span class="badge">{{ cat.produits|length }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
 
-    <div>
-        {% if products %}
-        <div class="product-grid">
-            {% for prod in products %}
-            <div class="product-card">
-                {% if prod.image %}
-                    <img src="{{ url_for('static', filename='uploads/' + prod.image) }}" alt="{{ prod.libelle }}" class="product-image">
-                {% else %}
-                    <div class="product-image" style="background: linear-gradient(135deg, #d9d2c7, #f4ece2); display: flex; align-items: center; justify-content: center; color: var(--muted);">Pas d'image</div>
-                {% endif %}
-                <div class="product-info">
-                    <div class="badge badge--accent" style="margin-bottom: 0.75rem;">{{ prod.categorie.nom }}</div>
-                    <h3>{{ prod.libelle }}</h3>
-                    <p>{{ prod.description or 'Aucune description disponible.' }}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1rem;">
-                        <div>
-                            <span class="product-price">{{ prod.prix_vente }} DH</span><br>
-                            <small style="color: var(--muted);">Stock: {{ prod.stock }}</small>
+        <div>
+            {% if products %}
+            <div class="product-grid catalog-grid">
+                {% for prod in products %}
+                <div class="product-card" data-filter-item data-filter-text="{{ prod.libelle }} {{ prod.marque or '' }} {{ prod.reference or '' }} {{ prod.categorie.nom }} {{ prod.description or '' }}">
+                    {% if prod.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + prod.image) }}" alt="{{ prod.libelle }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="background: linear-gradient(135deg, #d9d2c7, #f4ece2); display: flex; align-items: center; justify-content: center; color: var(--muted);">Pas d'image</div>
+                    {% endif %}
+                    <div class="product-info">
+                        <div class="badge badge--accent" style="margin-bottom: 0.75rem;">{{ prod.categorie.nom }}</div>
+                        <h3>{{ prod.libelle }}</h3>
+                        <p>{{ prod.description or 'Aucune description disponible.' }}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1rem;">
+                            <div>
+                                <span class="product-price">{{ prod.prix_vente }} DH</span><br>
+                                <small style="color: var(--muted);">Stock: {{ prod.stock }}</small>
+                            </div>
+                            <form action="{{ url_for('client_bp.add_to_cart', product_id=prod.id_produit) }}" method="POST">
+                                <button type="submit" class="btn btn-success" {% if prod.stock <= 0 %}disabled{% endif %}>
+                                    {% if prod.stock > 0 %}Ajouter{% else %}Rupture{% endif %}
+                                </button>
+                            </form>
                         </div>
-                        <form action="{{ url_for('client_bp.add_to_cart', product_id=prod.id_produit) }}" method="POST">
-                            <button type="submit" class="btn btn-success" {% if prod.stock <= 0 %}disabled{% endif %}>
-                                {% if prod.stock > 0 %}Ajouter{% else %}Rupture{% endif %}
-                            </button>
-                        </form>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <h3>Aucun produit dans cette catÃ©gorie</h3>
+                <p>Essayez une autre catÃ©gorie ou revenez Ã  l'ensemble du catalogue.</p>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="empty-state">
-            <h3>Aucun produit dans cette catégorie</h3>
-            <p>Essayez une autre catégorie ou revenez à l'ensemble du catalogue.</p>
-        </div>
-        {% endif %}
     </div>
-</div>
 </div>
 {% endblock %}

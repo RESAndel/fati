@@ -1,91 +1,94 @@
 {% extends "base.html" %}
+{% import "_ui.html" as ui %}
 {% block title %}Tableau de Bord Admin{% endblock %}
 
 {% block content %}
-<div class="section-heading">
-    <div>
-        <div class="section-kicker">Aperçu du système</div>
-        <h1>Tableau de Bord</h1>
+<section class="hero">
+    <div class="section-kicker">Aperçu du système</div>
+    <h1>Run the commerce stack with clarity.</h1>
+    <p>
+        A premium command center for catalogue operations, orders, suppliers, quotes, and logistics.
+        The business stays exactly the same, but the experience now feels like a modern SaaS product.
+    </p>
+    <div class="hero-actions">
+        <a href="{{ url_for('admin.products') }}" class="btn btn-primary">Open catalogue</a>
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary">Review orders</a>
+        <a href="{{ url_for('admin.deliveries') }}" class="btn btn-secondary">Track deliveries</a>
     </div>
-    <div style="display: flex; gap: 0.75rem;">
-        <a href="{{ url_for('admin.suppliers') }}" class="btn btn-secondary">Fournisseurs</a>
-        <a href="{{ url_for('admin.list_devis') }}" class="btn btn-secondary">Devis</a>
-        <a href="{{ url_for('admin.products') }}" class="btn btn-success">Produits</a>
-    </div>
-</div>
+</section>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-label">Chiffre d'Affaires</div>
-        <div class="stat-value">{{ "%.2f"|format(total_revenue) }} DH</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Commandes Totales</div>
-        <div class="stat-value">{{ total_orders }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Clients</div>
-        <div class="stat-value">{{ total_clients }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Fournisseurs</div>
-        <div class="stat-value">{{ total_suppliers }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Devis en cours</div>
-        <div class="stat-value">{{ total_devis }}</div>
-    </div>
-</div>
+<section class="stats-grid">
+    {{ ui.kpi_card('Revenue', '%.2f'|format(total_revenue) ~ ' DH', 'Total invoiced value', 'accent') }}
+    {{ ui.kpi_card('Orders', total_orders, 'All order records', 'neutral') }}
+    {{ ui.kpi_card('Clients', total_clients, 'Active customer accounts', 'neutral') }}
+    {{ ui.kpi_card('Suppliers', total_suppliers, 'Vendor network', 'neutral') }}
+    {{ ui.kpi_card('Quotes', total_devis, 'Quotation workflow', 'neutral') }}
+    {{ ui.kpi_card('Deliveries', total_deliveries, 'Logistics records', 'neutral') }}
+</section>
 
-<div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem; margin-top: 2rem;">
-    <div class="panel">
-        <div class="section-heading" style="margin-top: 0;">
+<section class="dashboard-grid">
+    <article class="panel">
+        <div class="section-heading">
             <div>
-                <div class="section-kicker">Flux récent</div>
-                <h2>Dernières Commandes</h2>
+                <div class="section-kicker">Recent activity</div>
+                <h2>Latest orders</h2>
             </div>
-            <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">Voir tout</a>
+            <a href="{{ url_for('admin.orders') }}" class="btn btn-secondary btn-sm">View all</a>
         </div>
-        
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Statut</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in recent_orders %}
-                    <tr>
-                        <td>{{ order.client.nom }} {{ order.client.prenom }}</td>
-                        <td>{{ order.date_commande.strftime('%d/%m/%Y %H:%M') }}</td>
-                        <td><span class="badge">{{ order.statut }}</span></td>
-                        <td><a href="{{ url_for('admin.edit_order', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm">Gérer</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <div class="panel">
-        <div class="section-heading" style="margin-top: 0;">
-            <div>
-                <div class="section-kicker">Répartition</div>
-                <h2>Statut Commandes</h2>
+        {% if recent_orders %}
+        <div class="activity-feed">
+            {% for order in recent_orders %}
+            <div class="feed-item" data-filter-item data-filter-text="{{ order.client.nom }} {{ order.client.prenom }} {{ order.statut }}">
+                <div class="feed-item__dot"></div>
+                <div class="feed-item__copy">
+                    <strong>Order #{{ order.id_commande }}</strong>
+                    <span>{{ order.client.nom }} {{ order.client.prenom }} · {{ order.date_commande.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+                <div class="feed-item__meta">
+                    {{ ui.status_chip(order.statut, 'accent' if order.statut in ['En préparation', 'Prête', 'En livraison'] else 'neutral') }}
+                    <a href="{{ url_for('admin.edit_order', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm">Manage</a>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% for status, count in order_breakdown.items() %}
-        {% if count > 0 %}
-        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
-            <span>{{ status }}</span>
-            <strong>{{ count }}</strong>
-        </div>
+        {% else %}
+        {{ ui.empty_state('No orders yet', 'Once clients place orders, they will appear here with live operational context.', 'Open orders', url_for('admin.orders')) }}
         {% endif %}
-        {% endfor %}
-    </div>
-</div>
+    </article>
+
+    <aside class="panel">
+        <div class="section-heading">
+            <div>
+                <div class="section-kicker">Operations</div>
+                <h2>Status mix</h2>
+            </div>
+        </div>
+
+        <div class="status-stack">
+            {% for status, count in order_breakdown.items() if count > 0 %}
+            <div class="status-stack__item">
+                <div class="status-stack__head">
+                    <span>{{ status }}</span>
+                    <strong>{{ count }}</strong>
+                </div>
+                <div class="status-stack__bar">
+                    <span style="width: {{ ((count / total_orders) * 100) if total_orders else 0 }}%;"></span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 1rem;" class="quick-actions">
+            <a class="quick-action" href="{{ url_for('admin.suppliers') }}">
+                <span>Open suppliers</span>
+                <kbd>Ops</kbd>
+            </a>
+            <a class="quick-action" href="{{ url_for('admin.list_devis') }}">
+                <span>Open quotes</span>
+                <kbd>Q</kbd>
+            </a>
+        </div>
+    </aside>
+</section>
 {% endblock %}

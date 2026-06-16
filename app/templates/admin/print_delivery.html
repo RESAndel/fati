@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Livraison #{{ delivery.id_livraison }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 20px; gap: 1rem; }
+        .section { margin-top: 24px; }
+        .box { border: 1px solid #ddd; padding: 14px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .muted { color: #666; }
+        .footer { margin-top: 40px; font-size: 0.9em; text-align: center; border-top: 1px solid #ddd; padding-top: 16px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Imprimer</button>
+        <hr>
+    </div>
+
+    <div class="header">
+        <div>
+            <h1>BON DE LIVRAISON</h1>
+            <p class="muted">ElectroVentes</p>
+        </div>
+        <div style="text-align: right;">
+            <p><strong>Livraison:</strong> #{{ delivery.id_livraison }}</p>
+            <p><strong>Commande:</strong> #{{ delivery.commande.id_commande }}</p>
+            <p><strong>Date commande:</strong> {{ delivery.commande.date_commande.strftime('%d/%m/%Y %H:%M') }}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="box">
+            <strong>Client</strong><br>
+            {{ delivery.commande.client.nom }} {{ delivery.commande.client.prenom }}<br>
+            {{ delivery.commande.client.telephone or 'Téléphone non renseigné' }}<br>
+            {{ delivery.commande.client.email or 'Email non renseigné' }}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="box">
+            <strong>Adresse de livraison</strong><br>
+            {{ delivery.adresse }}
+        </div>
+    </div>
+
+    <div class="section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>Total ligne</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ligne in delivery.commande.lignes %}
+                <tr>
+                    <td>{{ ligne.produit.libelle }}</td>
+                    <td>{{ ligne.quantite }}</td>
+                    <td>{{ "%.2f"|format(ligne.prix_unitaire) }} DH</td>
+                    <td>{{ "%.2f"|format(ligne.prix_unitaire * ligne.quantite) }} DH</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="box">
+            <p><strong>État livraison:</strong> {{ delivery.etat_livraison }}</p>
+            <p><strong>Statut commande:</strong> {{ delivery.commande.statut }}</p>
+            <p><strong>Total facture:</strong> {{ "%.2f"|format(delivery.commande.facture.montant_total if delivery.commande.facture else 0) }} DH</p>
+            <p><strong>Mode paiement:</strong> {{ delivery.commande.facture.mode_paiement if delivery.commande.facture else 'N/A' }}</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Merci de votre confiance.
+    </div>
+</body>
+</html>

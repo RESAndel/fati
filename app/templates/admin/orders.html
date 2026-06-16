@@ -10,7 +10,15 @@
     </div>
 </div>
 
-<table>
+<div class="toolbar" style="margin: 1rem 0;">
+    <label class="search-chrome" style="min-width: min(440px, 100%);" for="ordersSearch">
+        <span class="search-chrome__shortcut">Filter</span>
+        <input id="ordersSearch" type="search" placeholder="Search order ID, client, status..." data-live-filter="#ordersTableBody">
+    </label>
+    <span class="badge">{{ orders|length }} commandes</span>
+</div>
+
+<table id="ordersTable">
     <thead>
         <tr>
             <th>ID</th>
@@ -21,9 +29,9 @@
             <th class="no-print">Action</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="ordersTableBody">
         {% for order in orders %}
-        <tr>
+        <tr data-filter-item data-filter-text="{{ order.id_commande }} {{ order.client.nom }} {{ order.client.prenom }} {{ order.statut }} {{ order.facture.montant_total if order.facture else 0 }}">
             <td>#{{ order.id_commande }}</td>
             <td>{{ order.date_commande.strftime('%d/%m/%Y %H:%M') }}</td>
             <td>{{ order.client.nom }} {{ order.client.prenom }}</td>
@@ -41,6 +49,9 @@
             <td class="no-print">
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <a href="{{ url_for('admin.print_invoice', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm" target="_blank">Imprimer Facture</a>
+                    {% if order.livraison %}
+                    <a href="{{ url_for('admin.print_delivery', delivery_id=order.livraison.id_livraison) }}" class="btn btn-secondary btn-sm" target="_blank">Imprimer Livraison</a>
+                    {% endif %}
                     <a href="{{ url_for('admin.order_detail', order_id=order.id_commande) }}" class="btn btn-secondary btn-sm">Détails</a>
                     <a href="{{ url_for('admin.edit_order', order_id=order.id_commande) }}" class="btn btn-primary btn-sm">Modifier</a>
                     <form action="{{ url_for('admin.delete_order', order_id=order.id_commande) }}" method="POST" onsubmit="return confirm('Supprimer cette commande ?');" style="display: inline;">

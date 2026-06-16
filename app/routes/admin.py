@@ -26,6 +26,25 @@ DEVIS_STATUS_FLOW = [
 ]
 
 
+DELIVERY_STATUS_FLOW = [
+    'En prÃ©paration',
+    'En cours de livraison',
+    'LivrÃ©e',
+    'AnnulÃ©e',
+]
+
+DELIVERY_TO_ORDER_STATUS = {
+    'En prÃ©paration': 'En prÃ©paration',
+    'En cours de livraison': 'En livraison',
+    'LivrÃ©e': 'LivrÃ©e',
+    'AnnulÃ©e': 'AnnulÃ©e',
+}
+
+
+def _sync_order_from_delivery(order, delivery_status):
+    order.statut = DELIVERY_TO_ORDER_STATUS.get(delivery_status, order.statut)
+
+
 def admin_required(f):
     from functools import wraps
 
@@ -48,6 +67,7 @@ def dashboard():
     total_revenue = db.session.query(db.func.sum(Facture.montant_total)).scalar() or 0
     total_suppliers = Fournisseur.query.count()
     total_devis = Devis.query.count()
+    total_deliveries = Livraison.query.count()
     recent_orders = Commande.query.order_by(Commande.date_commande.desc()).limit(5).all()
 
     order_breakdown = {
@@ -67,6 +87,7 @@ def dashboard():
         total_revenue=total_revenue,
         total_suppliers=total_suppliers,
         total_devis=total_devis,
+        total_deliveries=total_deliveries,
         recent_orders=recent_orders,
         order_breakdown=order_breakdown,
     )
@@ -344,6 +365,101 @@ def delete_devis(devis_id):
     db.session.commit()
     flash('Devis supprimé !', 'success')
     return redirect(url_for('admin.list_devis'))
+
+# --- DELIVERIES ---
+
+@admin.route('/deliveries')
+@login_required
+@admin_required
+def deliveries():
+    all_deliveries = Livraison.query.order_by(Livraison.id_livraison.desc()).all()
+    available_orders = Commande.query.filter(~Commande.livraison.has()).order_by(Commande.date_commande.desc()).all()
+    delivery_stats = {
+        'total': len(all_deliveries),
+        'En préparation': sum(1 for delivery in all_deliveries if delivery.etat_livraison == 'En préparation'),
+        'En cours de livraison': sum(1 for delivery in all_deliveries if delivery.etat_livraison == 'En cours de livraison'),
+        'Livrée': sum(1 for delivery in all_deliveries if delivery.etat_livraison == 'Livrée'),
+        'Annulée': sum(1 for delivery in all_deliveries if delivery.etat_livraison == 'Annulée'),
+    }
+    return render_template(
+        'admin/deliveries.html',
+        deliveries=all_deliveries,
+        available_orders=available_orders,
+        status_options=DELIVERY_STATUS_FLOW,
+        delivery_stats=delivery_stats,
+    )
+
+
+@admin.route('/deliveries/add', methods=['POST'])
+@login_required
+@admin_required
+def add_delivery():
+    order_id = request.form.get('order_id', type=int)
+    adresse = request.form.get('adresse', '').strip()
+    etat_livraison = request.form.get('etat_livraison', 'En prÃ©paration')
+
+    if not order_id:
+        flash('Veuillez choisir une commande.', 'danger')
+        return redirect(url_for('admin.deliveries'))
+
+    order = Commande.query.get_or_404(order_id)
+
+    if order.livraison:
+        flash('Cette commande dispose dÃ©jÃ  dâ€™une livraison. Vous pouvez la modifier.', 'warning')
+        return redirect(url_for('admin.edit_delivery', delivery_id=order.livraison.id_livraison))
+
+    if not adresse:
+        flash('Lâ€™adresse de livraison est obligatoire.', 'danger')
+        return redirect(url_for('admin.deliveries'))
+
+    if etat_livraison not in DELIVERY_STATUS_FLOW:
+        etat_livraison = 'En prÃ©paration'
+
+    new_delivery = Livraison(
+        id_commande=order.id_commande,
+        adresse=adresse,
+        etat_livraison=etat_livraison,
+    )
+    _sync_order_from_delivery(order, etat_livraison)
+    db.session.add(new_delivery)
+    db.session.commit()
+    flash('Livraison ajoutÃ©e avec succÃ¨s !', 'success')
+    return redirect(url_for('admin.deliveries'))
+
+
+@admin.route('/deliveries/edit/<int:delivery_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_delivery(delivery_id):
+    delivery = Livraison.query.get_or_404(delivery_id)
+
+    if request.method == 'POST':
+        adresse = request.form.get('adresse', '').strip()
+        etat_livraison = request.form.get('etat_livraison', 'En prÃ©paration')
+
+        if not adresse:
+            flash('Lâ€™adresse de livraison est obligatoire.', 'danger')
+            return redirect(url_for('admin.edit_delivery', delivery_id=delivery_id))
+
+        if etat_livraison not in DELIVERY_STATUS_FLOW:
+            etat_livraison = 'En prÃ©paration'
+
+        delivery.adresse = adresse
+        delivery.etat_livraison = etat_livraison
+        _sync_order_from_delivery(delivery.commande, etat_livraison)
+        db.session.commit()
+        flash('Livraison mise Ã  jour !', 'success')
+        return redirect(url_for('admin.deliveries'))
+
+    return render_template('admin/delivery_edit.html', delivery=delivery, status_options=DELIVERY_STATUS_FLOW)
+
+
+@admin.route('/print/delivery/<int:delivery_id>')
+@login_required
+@admin_required
+def print_delivery(delivery_id):
+    delivery = Livraison.query.get_or_404(delivery_id)
+    return render_template('admin/print_delivery.html', delivery=delivery)
 
 # --- PRINTING ---
 

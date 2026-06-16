@@ -105,8 +105,16 @@
     </form>
 </div>
 
+<div class="toolbar" style="margin-bottom: 0.8rem;">
+    <label class="search-chrome" style="min-width: min(440px, 100%);" for="productsSearch">
+        <span class="search-chrome__shortcut">Filter</span>
+        <input id="productsSearch" type="search" placeholder="Search products, brand, supplier, category..." data-live-filter="#productsTableBody">
+    </label>
+    <span class="badge">{{ products|length }} produits</span>
+</div>
+
 <div class="table-wrap">
-    <table>
+    <table id="productsTable">
         <thead>
             <tr>
                 <th>Image</th>
@@ -117,9 +125,9 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="productsTableBody">
             {% for prod in products %}
-            <tr>
+            <tr data-filter-item data-filter-text="{{ prod.libelle }} {{ prod.reference or '' }} {{ prod.marque or '' }} {{ prod.categorie.nom }} {{ prod.fournisseur.nom if prod.fournisseur else '' }} {{ prod.description or '' }}">
                 <td>
                     {% if prod.image %}
                     <img src="{{ url_for('static', filename='uploads/' + prod.image) }}" width="64" height="64" style="object-fit: cover; border-radius: 12px;">
